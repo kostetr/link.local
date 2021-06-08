@@ -5,6 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Laravel</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -21,7 +25,7 @@
         </style>
     </head>
     <body class="antialiased">
-        <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
+        <div class="relative flex items-top justify-center bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
             @if (Route::has('login'))
             <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
                 @auth
@@ -35,11 +39,80 @@
                 @endauth
             </div>
             @endif
-
-            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-
-
+        </div>
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+        @if ($message = Session::get('success'))
+        <div class="alert alert-success">
+            <p>{{ $message }}</p>
+        </div>
+        @endif
+        @if (Route::has('login'))
+        @auth
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <form action="/save" method="POST">
+                            @csrf                            
+                            <div class="form-group">
+                                <label for="linkNameInput1">Link:</label>
+                                <input type="text" class="form-control" id="linkNameInput1" name="long_link">
+                                <label for="linkNameInput2">Link lifetime in minutes:</label>
+                                <input type="text" class="form-control" id="linkNameInput2" name="life_time_minutes">
+                            </div>
+                            <button type="submit" id="Add" class="btn btn-primary" >Добавить</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
+        <hr>
+        <?php $count = 1; ?>
+        @if(isset($links))
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Long Link</th>
+                    <th scope="col">Short Link</th>
+                    <th scope="col">Transitions</th>
+                    <th scope="col">Life Time(Minuts)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($links as $link)
+
+                <tr>
+                    <th scope="row">{{ $count++ }}</th>
+                    <td><a href="{{ $link->long_link }}" target="_blank">{{ substr($link->long_link, 0, 50).'...' }}</a></td>
+                    <td><a href="/k/{{ $link->key }}" target="_blank">{{ $url.'/'.$link->key }}</a></td>
+                    <td>{{ $link->transitions }}</td>
+                    <td>{{ $link->life_time_minutes }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @endif
+
+
+
+        @else
+        <p class="text-left">Необходимо реализовать возможность ввода пользователем URL с целью минификации, и полем с указанием времени жизни ссылки. Сервис должен предоставлять статистику переходов по ссылке.</p>
+        @endauth
+        @endif        
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
     </body>
 </html>

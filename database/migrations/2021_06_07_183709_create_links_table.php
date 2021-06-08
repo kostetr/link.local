@@ -15,6 +15,11 @@ class CreateLinksTable extends Migration
     {
         Schema::create('links', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('user_id')->unsigned();
+            $table->longText('long_link');
+            $table->string('key',25)->unique();
+            $table->bigInteger('transitions')->unsigned();
+            $table->bigInteger('life_time_minutes')->unsigned();;
             $table->timestamps();
         });
     }
