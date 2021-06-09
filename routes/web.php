@@ -16,19 +16,7 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', [LinkController::class, 'index']);
 Route::get('/k/{key}', [LinkController::class, 'update']);
 Route::middleware('auth')->group(function () {
-    Route::post('/save', [LinkController::class, 'save']);
-    Route::get('/u/{id}/destroy', [LinkController::class, 'destroy']);    
+    Route::post('/save', [LinkController::class, 'save']);    
 });
-
-
-
-
-
-
-
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
 
 require __DIR__ . '/auth.php';

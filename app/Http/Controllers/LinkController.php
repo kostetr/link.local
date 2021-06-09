@@ -17,18 +17,16 @@ class LinkController extends Controller {
     }
 
     /**
-     * Возвращает доменное имя
-     *     * 
+     * Возвращает полный адрес http://link.local
      */
     public function url() {
-        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'];
     }
 
     public function index() {
         if (isset(Auth::user()->id)) {
             $this->data['links'] = Link::where('user_id', Auth::user()->id)->get();
         }
-
         return view('index', $this->data);
     }
 
@@ -37,18 +35,19 @@ class LinkController extends Controller {
             'long_link' => 'required',
             'life_time_minutes' => 'required|numeric||min:0|not_in:0',
         ]);
+
         do {
             $key = Str::random(25);
         } while (count(Link::where('key', $key)->get()) > 0);
 
-
-
         if (!Link::create(array_merge($request->all(), ['user_id' => Auth::user()->id, 'key' => $key, 'transitions' => 0]))) {
             return redirect()->withErrors(['Ошибка записи в БД']);
         }
-        $link = Link::where('key', $key)->get();
+        $link = Link::where('key', $key)->first();
+        if (!DB::unprepared('CREATE EVENT event_name_id' . $link->id . ' ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL ' . $link->life_time_minutes . ' MINUTE DO DELETE FROM `links` WHERE ID=' . $link->id . ';')) {
+            return redirect()->withErrors(['Ошибка записи в БД']);
+        }
 
-        DB::unprepared('CREATE EVENT event_name_id' . $link[0]->id . ' ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL ' . $link[0]->life_time_minutes . ' MINUTE DO DELETE FROM `links` WHERE ID=' . $link[0]->id . ';');
         return redirect('/')->with('success', 'Все Ок. Линк добавлен!');
     }
 
@@ -57,10 +56,6 @@ class LinkController extends Controller {
             $link = Link::where('key', $key)->first();
             return redirect($link['long_link']);
         }
-    }
-
-    public function destroy($id) {
-        //
     }
 
 }
